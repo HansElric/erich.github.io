@@ -1,0 +1,73 @@
+baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = "Erich's Site"
+theme = 'zen'
+defaultContentLanguage = "en"
+pluralizelisttitles = false
+removePathAccents = true
+
+[caches]
+  [caches.images]
+    dir = ':cacheDir/images'
+
+[outputFormats.SearchIndex]
+mediaType = "application/json"
+baseName = "searchindex"
+isPlainText = true
+notAlternative = true
+
+[outputs]
+home = ["HTML", "RSS", "JSON", "SearchIndex"]
+section = ["HTML", "RSS", "JSON"]
+
+[params]
+contact = "johan.ed.saputro@protonmail.com"
+description = "Site that shares a common things of mine"
+dateformat = "2 January, 2006"
+favicon = "img/logo.png"
+feedlinks = true
+icon = "images/logo.png"
+image = "images/logo.png"
+imageMaxWidth = 400
+logoWidth = 128
+mobileMenu = true
+poweredby = false
+sidebar = true
+submitted = true
+logo = "images/logo.png"
+mainSections = []
+
+[params.author]
+name = "Erich"
+url = ""
+avatar = "images/avatar.jpeg"
+
+[[menus.main]]
+name = "Home"
+pageRef = "/"
+weight = 10
+
+[[menus.main]]
+name = "Documentation"
+pageRef = "/documentation"
+weight = 20
+
+[[menus.main]]
+name = "Books"
+pageRef = "/books"
+weight = 30
+
+[[menus.main]]
+name = "Contact"
+pageRef = "/contact"
+weight = 40
+
+[[menus.main]]
+name = "Search"
+pageRef = "/search"
+weight = 50
+
+[[menus.main]]
+name = "Blog Posts"
+pageRef = "/blog"
+weight = 60

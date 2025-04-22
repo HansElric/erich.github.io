@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Blog  on Erich&#39;s Site</title>
+    <link>http://localhost:8080/blog-/</link>
+    <description>Recent content in Blog  on Erich&#39;s Site</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+      <atom:link href="http://localhost:8080/blog-/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Self Employed</title>
+      <link>http://localhost:8080/blog-/self-employed/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:8080/blog-/self-employed/</guid>
+      <description>&lt;p&gt;dwadwdaw&lt;/p&gt;&#xA;</description>
+    </item>
+  </channel>
+</rss>

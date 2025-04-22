@@ -1,0 +1,57 @@
+body {
+    font-size: 14px; /* Adjust the size */
+    background-color: gray !important;
+}
+
+h1 {
+    font-size: 18px;
+}
+
+h2 {
+    font-size: 16px;
+}
+
+h3 {
+    font-size: 14px;
+}
+
+p {
+    font-size: 14px;
+}
+
+
+main p {
+    text-align: justify;
+}
+
+main h1 {
+    font-size: 18px;
+}
+
+main h2 {
+    font-size: 16px;
+}
+
+main h3 {
+    font-size: 14px;
+}
+
+main p {
+    font-size: 14px;
+}
+
+main li {
+    list-style-type: square;
+}
+
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 1024px) {
+    body {
+        font-size: 14px;
+    }
+}

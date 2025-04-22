@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html class="nojs" lang="en-us" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=8080&amp;path=livereload" data-no-instant defer></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="/css/custom.css">
+
+<title>eBPF Trace SCTP Socket – Erich&#39;s Site</title>
+
+<meta name="created" content="2024-08-21T00:00:00+0000">
+<meta name="modified" content="2024-08-21T00:00:00+0000">
+<meta name="author" content="Erich">
+<meta name="contact" content="johan.ed.saputro@protonmail.com">
+<meta property="og:site_name" content="Erich&#39;s Site">
+<meta property="og:title" content="eBPF Trace SCTP Socket">
+<meta property="og:url" content="http://localhost:8080/documentation/ebpf-sctp-tracing/ebpf-tracing-sctp-socket/">
+<meta property="og:type" content="article">
+<meta property="og:image" content="http://localhost:8080/images/logo.png">
+<meta name="generator" content="Hugo 0.123.7">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="theme-color" content="#ffffff">
+
+
+<link rel="canonical" href="http://localhost:8080/documentation/ebpf-sctp-tracing/ebpf-tracing-sctp-socket/">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+
+<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/css/mobilemenu.css" media="screen">
+<link rel="stylesheet" href="/css/print.css" media="print">
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "headline": "eBPF Trace SCTP Socket",
+    "datePublished": "2024-08-21T00:00:00Z",
+    "dateModified": "2024-08-21T00:00:00Z",
+    "url" : "http://localhost:8080/documentation/ebpf-sctp-tracing/ebpf-tracing-sctp-socket/",
+    
+    "image" : "http://localhost:8080/images/logo.png",
+    "author": {
+      "@type": "Person",
+      "name": "Erich"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http://localhost:8080/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Erich's Site",
+      "logo" : {
+        "@type": "ImageObject",
+        "url": "http://localhost:8080/images/logo.png"
+      },
+      "url": "http://localhost:8080/"
+    }
+  }
+</script>
+
+<script src="/js/script-early.13eca1c44b48885517a4dc79e153a2da63e3825a7a37c271c88558877cb570b5.js"></script>
+
+<script defer src="/js/mobilemenu.91539dcbc30264a42d652fdd6446fb725e2e13cecc3644eab74db3aad1b1d9d2.js"></script>
+<script defer src="/js/script.5ed52cdd956021fd7194109b25dbc5cbe93a1085461b9f29b1284df94c19481c.js"></script>
+
+
+
+
+</head>
+
+<body class="single-page">
+<div class="page layout__page layout__sidebar-second">
+<header class="header layout__header">
+<a href="/" title="Home" rel="home" class="header__logo">
+<img src="/images/logo.png" width="128" alt="Home" class="header__logo-image">
+</a>
+<h1 class="header__site-name">
+<a href="/" title="Home" class="header__site-link" rel="home"><span>Erich&#39;s Site</span></a>
+</h1>
+<div class="region header__region">
+
+</div>
+</header>
+
+<nav class="main-menu mx--xs layout__navigation" aria-label="Main menu">
+<ul class="flex-inline mx--0">
+<li><a href="/"><span>Home</span></a></li>
+<li><a href="/documentation/" aria-current="page"><span>Documentation</span></a></li>
+<li><a href="/books/"><span>Books</span></a></li>
+<li><a href="/contact/"><span>Contact</span></a></li>
+<li><a href="/search/"><span>Search</span></a></li>
+<li><a href="/blog/"><span>Blog Posts</span></a></li>
+</ul>
+</nav>
+<div class="mobile-nav" dir="ltr" hidden>
+  <div class="mobile-nav__cover"></div>
+  <button class="mobile-nav__toggle" aria-expanded="false" aria-controls="sheet">
+    Menu
+    <svg class="mobile-nav__hamburger" viewBox="0 0 100 100" focusable="false" aria-hidden="true">
+      <rect width="80" height="12" x="10" y="20" rx="5"></rect>
+      <rect width="80" height="12" x="10" y="45" rx="5"></rect>
+      <rect width="80" height="12" x="10" y="70" rx="5"></rect>
+    </svg>
+  </button>
+  <div class="mobile-nav__sheet link-inverted link-nav" id="sheet" aria-hidden="true">
+    <div class="mobile-nav__region"></div>
+    <nav class="mobile-nav__main-menu" aria-label="Main menu">
+    <ul class="mobile-nav__navbar">
+    <li><a href="/"><span>Home</span></a></li>
+    <li><a href="/documentation/" aria-current="page"><span>Documentation</span></a></li>
+    <li><a href="/books/"><span>Books</span></a></li>
+    <li><a href="/contact/"><span>Contact</span></a></li>
+    <li><a href="/search/"><span>Search</span></a></li>
+    <li><a href="/blog/"><span>Blog Posts</span></a></li>
+    </ul>
+    </nav>
+  </div>
+</div>
+<main class="main layout__main">
+<article class="single-view single-view--documentation">
+<header>
+<h1 class="title mb--xxs">eBPF Trace SCTP Socket</h1>
+<div class="submitted meta">
+<span class="author" itemprop="author">Erich</span> - <time class="created-date" datetime="2024-08-21T00:00:00Z">21 August, 2024</time>
+
+</div>
+</header>
+
+<h1 id="ebpf-sctp-trace">eBPF SCTP Trace</h1>
+<p><img src="./image.png" alt="architecture"></p>
+<h2 id="trace-the-protocol-id-and-print-it-in-kernel">Trace the Protocol ID and print it in kernel</h2>
+<p><img src="%5BRT%20Lab%5D%20Trace%20SCTP%20packet%20using%20eBPF%207102b4c93e6247caada429f957a82a59/image%201.png" alt="image.png"></p>
+<p><img src="%5BRT%20Lab%5D%20Trace%20SCTP%20packet%20using%20eBPF%207102b4c93e6247caada429f957a82a59/image%202.png" alt="image.png"></p>
+<p>Protocol ID for <strong>SCTP is 132</strong> and the program was successfully trace data that contain SCTP packet from CU to AMF.</p>
+<p>Almost all telco protocols are SCTP based, like NGAP, F1AP, nFAPI, E1AP, E2AP, etc. With this filtering process using eBPF, I argue (hypothetically) that the filtering process is much faster because the process is not involve kernel. With this approach I also argue that this filtering process is useful in telco technology, it can be used for security in RAN, observable the packet to get data for Traffic Control, handover and for RIC use cases.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;vmlinux.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;bpf/bpf_endian.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;bpf/bpf_helpers.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define ETH_P_IP 0x0800
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;xdp&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">xdp_prog</span>(<span style="color:#66d9ef">struct</span> xdp_md <span style="color:#f92672">*</span>ctx) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>data_end <span style="color:#f92672">=</span> (<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(<span style="color:#66d9ef">long</span>)ctx<span style="color:#f92672">-&gt;</span>data_end;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>data <span style="color:#f92672">=</span> (<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(<span style="color:#66d9ef">long</span>)ctx<span style="color:#f92672">-&gt;</span>data;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> ethhdr <span style="color:#f92672">*</span>eth <span style="color:#f92672">=</span> data;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(eth <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">&gt;</span> data_end)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (eth<span style="color:#f92672">-&gt;</span>h_proto <span style="color:#f92672">==</span> <span style="color:#a6e22e">bpf_htons</span>(ETH_P_IP)) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">struct</span> iphdr <span style="color:#f92672">*</span>ipv4 <span style="color:#f92672">=</span> data <span style="color:#f92672">+</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#f92672">*</span>eth);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> ((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(ipv4 <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">&gt;</span> data_end)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Print the protocol number
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#a6e22e">bpf_printk</span>(<span style="color:#e6db74">&#34;protocol: %u</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, ipv4<span style="color:#f92672">-&gt;</span>protocol);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> _license[] <span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;license&#34;</span>) <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;GPL&#34;</span>;
+</span></span></code></pre></div><p>This code will check the protocol, if protocol is SCTP, kernel will print sctp protocol id and the packet will PASS.</p>
+<h2 id="trace-source-ip-and-destination-ip-and-store-the-data-in-perf-event">Trace Source IP and Destination IP and store the data in perf event</h2>
+<p>With some modification, we could filter tha packet like IP Src and IP Dst like below:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;vmlinux.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;bpf/bpf_endian.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;bpf/bpf_helpers.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define ETH_P_IP 0x0800
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> flow_info {
+</span></span><span style="display:flex;"><span>    __u32 src_ip;
+</span></span><span style="display:flex;"><span>    __u32 dst_ip;
+</span></span><span style="display:flex;"><span>    __u16 src_port;
+</span></span><span style="display:flex;"><span>    __u16 dst_port;
+</span></span><span style="display:flex;"><span>    __u8 proto;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>   <span style="color:#a6e22e">__uint</span>(type, BPF_MAP_TYPE_PERF_EVENT_ARRAY);
+</span></span><span style="display:flex;"><span>   <span style="color:#a6e22e">__uint</span>(key_size, <span style="color:#66d9ef">sizeof</span>(__u32));
+</span></span><span style="display:flex;"><span>   <span style="color:#a6e22e">__uint</span>(value_size, <span style="color:#66d9ef">sizeof</span>(__u32));
+</span></span><span style="display:flex;"><span>} events <span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;.maps&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;xdp&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">xdp_prog</span>(<span style="color:#66d9ef">struct</span> xdp_md <span style="color:#f92672">*</span>ctx) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>data_end <span style="color:#f92672">=</span> (<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(<span style="color:#66d9ef">long</span>)ctx<span style="color:#f92672">-&gt;</span>data_end;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>data <span style="color:#f92672">=</span> (<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(<span style="color:#66d9ef">long</span>)ctx<span style="color:#f92672">-&gt;</span>data;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> ethhdr <span style="color:#f92672">*</span>eth <span style="color:#f92672">=</span> data;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(eth <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">&gt;</span> data_end)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (eth<span style="color:#f92672">-&gt;</span>h_proto <span style="color:#f92672">==</span> <span style="color:#a6e22e">bpf_htons</span>(ETH_P_IP)) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">struct</span> iphdr <span style="color:#f92672">*</span>ipv4 <span style="color:#f92672">=</span> data <span style="color:#f92672">+</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#f92672">*</span>eth);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> ((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(ipv4 <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">&gt;</span> data_end)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Print the protocol number
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">// bpf_printk(&#34;protocol: %u\n&#34;, ipv4-&gt;protocol);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">// bpf_printk(&#34;IP Src: %d\n&#34;, bpf_ntohl(ipv4-&gt;saddr));
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">// bpf_printk(&#34;IP Dst: %d\n&#34;, bpf_ntohl(ipv4-&gt;daddr));
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">struct</span> flow_info flow <span style="color:#f92672">=</span> {};
+</span></span><span style="display:flex;"><span>	flow.src_ip <span style="color:#f92672">=</span> ipv4<span style="color:#f92672">-&gt;</span>saddr;
+</span></span><span style="display:flex;"><span>	flow.dst_ip <span style="color:#f92672">=</span> ipv4<span style="color:#f92672">-&gt;</span>daddr;
+</span></span><span style="display:flex;"><span>	flow.proto <span style="color:#f92672">=</span> ipv4<span style="color:#f92672">-&gt;</span>protocol;
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">bpf_perf_event_output</span>(ctx, <span style="color:#f92672">&amp;</span>events, BPF_F_CURRENT_CPU, <span style="color:#f92672">&amp;</span>flow, <span style="color:#66d9ef">sizeof</span>(flow));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> _license[] <span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;license&#34;</span>) <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;GPL&#34;</span>;
+</span></span></code></pre></div><p><img src="%5BRT%20Lab%5D%20Trace%20SCTP%20packet%20using%20eBPF%207102b4c93e6247caada429f957a82a59/image%203.png" alt="image.png"></p>
+<p>The data of the output will store in events file, to open the oytput or view the output we need the userspace application to view BPF_MAP_TYPE_PERF_EVENT_ARRAY like perf buffer in linux.</p>
+<p>First thing to do before running the userspace program, we need to specify where the events of our bpf maps will store. To do this we need to do some commands like below:</p>
+<p>The error <code>bpf_obj_get: No such file or directory</code> indicates that the BPF map at the specified path (<code>/sys/fs/bpf/events</code>) doesn&rsquo;t exist or wasn&rsquo;t created correctly.</p>
+<p>To fix this issue, you need to ensure the following:</p>
+<h3 id="1-ensure-your-bpf-program-creates-the-map">1. Ensure Your BPF Program Creates the Map</h3>
+<p>Make sure that your BPF program creates a BPF map and pins it to the BPF filesystem (usually mounted at <code>/sys/fs/bpf/</code>).</p>
+<p>In your BPF program, you should define the map like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">__uint</span>(type, BPF_MAP_TYPE_PERF_EVENT_ARRAY);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">__uint</span>(max_entries, <span style="color:#ae81ff">128</span>);  <span style="color:#75715e">// Number of CPUs
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">__type</span>(key, u32);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">__type</span>(value, u32);
+</span></span><span style="display:flex;"><span>} events <span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;.maps&#34;</span>);
+</span></span></code></pre></div><p>To pin the map to the BPF filesystem, you can use the following code in the user-space program that loads your BPF program:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> map_fd <span style="color:#f92672">=</span> <span style="color:#a6e22e">bpf_map__fd</span>(skel<span style="color:#f92672">-&gt;</span>maps.events);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">bpf_obj_pin</span>(map_fd, <span style="color:#e6db74">&#34;/sys/fs/bpf/events&#34;</span>);
+</span></span></code></pre></div><p>Or, if you&rsquo;re manually loading the BPF program and pinning the map:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>bpftool prog load my_bpf_program.o /sys/fs/bpf/my_bpf_prog
+</span></span><span style="display:flex;"><span>bpftool map pin id &lt;map_id&gt; /sys/fs/bpf/events
+</span></span></code></pre></div><h3 id="2-mount-the-bpf-filesystem-if-not-already-mounted">2. Mount the BPF Filesystem (if not already mounted)</h3>
+<p>Ensure that the BPF filesystem is mounted:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo mount -t bpf bpf /sys/fs/bpf/
+</span></span></code></pre></div><p>This step may be required if you don&rsquo;t have the BPF filesystem mounted on your system.</p>
+<h3 id="3-load-and-pin-the-map-correctly">3. Load and Pin the Map Correctly</h3>
+<p>Make sure your user-space program or manual commands correctly load and pin the map in the BPF filesystem.</p>
+<p>If you load the program manually and want to pin the map, you can use the <code>bpftool</code> utility:</p>
+<ol>
+<li>
+<p>Load the BPF program:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo bpftool prog load my_bpf_program.o /sys/fs/bpf/my_bpf_prog
+</span></span></code></pre></div></li>
+<li>
+<p>Pin the map:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo bpftool map pin id &lt;map_id&gt; /sys/fs/bpf/events
+</span></span></code></pre></div><p>Replace <code>&lt;map_id&gt;</code> with the ID of your map, which you can find using:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo bpftool map show
+</span></span></code></pre></div></li>
+</ol>
+<h3 id="4-verify-the-map-exists">4. Verify the Map Exists</h3>
+<p>Once you&rsquo;ve pinned the map, verify that it exists in the expected location:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ls /sys/fs/bpf/events
+</span></span></code></pre></div><p>If the file exists, your program should be able to access it without the <code>bpf_obj_get</code> error.</p>
+<h3 id="recap">Recap</h3>
+<ol>
+<li>Ensure your BPF program creates and pins the map.</li>
+<li>Ensure the BPF filesystem is mounted.</li>
+<li>Load and pin the map correctly.</li>
+</ol>
+<p>After following these steps, your user-space program should be able to access the BPF map without errors. If you still encounter issues, please provide more details about your BPF program setup.</p>
+
+
+</article>
+</main>
+
+
+<aside class="sidebar layout__second-sidebar">
+<nav class="menu">
+<p class="title"><strong><a href="/blog/">Blog</a></strong></p>
+<ul>
+<li><a href="/blog/self-employed/">Self Employed</a></li>
+</ul>
+</nav>
+<nav class="menu">
+<p class="title"><strong><a href="/documentation/" aria-current="page">Documentation</a></strong></p>
+<ul>
+<li><a href="/documentation/ebpf-sctp-tracing/ebpf-tracing-sctp-socket/" aria-current="page">eBPF Trace SCTP Socket</a></li>
+<li><a href="/documentation/sched-ext/">Sched-Ext a Game Changer for Linux Scheduler</a></li>
+</ul>
+</nav>
+</aside>
+<footer class="footer layout__footer mt--l">
+<p><span>© Erich&#39;s Site</span></p>
+
+
+</footer>
+
+</div>
+</body>
+</html>

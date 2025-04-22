@@ -1,0 +1,33 @@
+
+{
+    "version": "https://jsonfeed.org/version/1.1",
+    "title": "Blog  on Erich's Site",
+    "description": "Recent content in Blog  on Erich's Site",
+    "home_page_url": "http://localhost:8080/",
+    "feed_url": "http://localhost:8080/blog-/index.json",
+    "language": "en-us",
+    "icon": "http://localhost:8080/images/logo.png",
+    "favicon": "http://localhost:8080/img/logo-ver.png",
+    "authors": [
+        {
+            "name": "Erich",
+            "url": "https://example.org/somepage",
+            "avatar": "http://localhost:8080/path/to/some-image.jpg"
+        }
+    ],
+    "items": [
+        {
+            "title": "Self Employed",
+            "date_published": "0001-01-01T00:00:00Z",
+            "date_modified": "0001-01-01T00:00:00Z",
+            "id": "http://localhost:8080/blog-/self-employed/",
+            "url": "http://localhost:8080/blog-/self-employed/",
+            "authors": [
+                {
+                  "name": "Erich"
+                }
+            ],
+            "content_html": "\u003cp\u003edwadwdaw\u003c/p\u003e\n"
+        }
+        ]
+}

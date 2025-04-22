@@ -1,0 +1,32 @@
+
+{
+    "version": "https://jsonfeed.org/version/1.1",
+    "title": "Blog on Erich's Site",
+    "description": "Recent content in Blog on Erich's Site",
+    "home_page_url": "http://localhost:8080/",
+    "feed_url": "http://localhost:8080/blog/index.json",
+    "language": "en-us",
+    "icon": "http://localhost:8080/images/logo.png",
+    "favicon": "http://localhost:8080/img/logo.png",
+    "authors": [
+        {
+            "name": "Erich",
+            "avatar": "http://localhost:8080/images/avatar.jpeg"
+        }
+    ],
+    "items": [
+        {
+            "title": "Self Employed",
+            "date_published": "2025-04-02T00:00:00Z",
+            "date_modified": "2025-04-02T00:00:00Z",
+            "id": "http://localhost:8080/blog/self-employed/",
+            "url": "http://localhost:8080/blog/self-employed/",
+            "authors": [
+                {
+                  "name": "Erich"
+                }
+            ],
+            "content_html": "\u003cp\u003eMaybe some of you have same issue like me, have a job but also have side project for fun. If you are like me, it means we are not alone. There are several people who like us, don\u0026rsquo;t worry :) \u0026ldquo;at first I thought I was alone LOL\u0026rdquo;. It is normal for a person who are incapable to do \u0026ldquo;a doing nothing\u0026rdquo; work. In this page, I would like to sharing my \u0026ldquo;Self Employed\u0026rdquo; work with you.\u003c/p\u003e\n\u003cp\u003eIt\u0026rsquo;s began while I was studying my Diploma degree, or maybe when I was highschool student. I was a person that loves learning a new thing, especially strategy game. So despite I was going to school for study, sometimes I just go to school\u0026rsquo;s hall to play board game or became football tactic maker. And then this behavior continued until college. I\u0026rsquo;m very passionate in learning new thing and finally start my first self project, that I called \u0026ldquo;A Computer that can See\u0026rdquo;. It is basically just a computer vision.\u003c/p\u003e\n\u003cp\u003eFor honest doing programming or computer science is just a hobby, actually my passion lay on pure science. But the universe guide me to join telecommunication engineering, and I decided to focused on computer science as the project reference. For me, it is fun to worked in this field and I became passionate with this field. Until I got my first job in Telecom industry, I still working on my project for pure science and computer science. Fortunately, those fields are related each other so I can work on those project together. Yeas every knowledge must be related each other in some ways.\u003c/p\u003e\n"
+        }
+        ]
+}
