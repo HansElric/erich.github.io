@@ -5,24 +5,23 @@
 <meta name="viewport" content="width=device-width">
 <link rel="stylesheet" href="/css/custom.css">
 
-<title>Tags – Erich&#39;s Site</title>
-<link rel="alternate" type="application/rss+xml" title="rss" href="http://localhost:8080/tags/index.xml">
+<title>jBPF for RIC with srsRAN – Erich&#39;s Site</title>
 
-<meta name="created" content="0001-01-01T00:00:00+0000">
-<meta name="modified" content="0001-01-01T00:00:00+0000">
+<meta name="created" content="2025-04-10T00:00:00+0000">
+<meta name="modified" content="2025-04-10T00:00:00+0000">
 <meta name="author" content="Erich">
 <meta name="contact" content="johan.ed.saputro@protonmail.com">
 <meta property="og:site_name" content="Erich&#39;s Site">
-<meta property="og:title" content="Tags">
-<meta property="og:url" content="http://localhost:8080/tags/">
-<meta property="og:type" content="website">
+<meta property="og:title" content="jBPF for RIC with srsRAN">
+<meta property="og:url" content="http://localhost:8080/documentation/jbpf-srsran/">
+<meta property="og:type" content="article">
 <meta property="og:image" content="http://localhost:8080/images/logo.png">
 <meta name="generator" content="Hugo 0.123.7">
 <meta name="msapplication-TileColor" content="#ffffff">
 <meta name="theme-color" content="#ffffff">
 
 
-<link rel="canonical" href="http://localhost:8080/tags/">
+<link rel="canonical" href="http://localhost:8080/documentation/jbpf-srsran/">
 
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -37,9 +36,11 @@
 {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "url" : "http://localhost:8080/tags/",
-    "name": "Tags",
-    "description": "Site that shares a common things of mine",
+    "headline": "jBPF for RIC with srsRAN",
+    "datePublished": "2025-04-10T00:00:00Z",
+    "dateModified": "2025-04-10T00:00:00Z",
+    "url" : "http://localhost:8080/documentation/jbpf-srsran/",
+    
     "image" : "http://localhost:8080/images/logo.png",
     "author": {
       "@type": "Person",
@@ -71,7 +72,7 @@
 
 </head>
 
-<body class="list-page">
+<body class="single-page">
 <div class="page layout__page layout__sidebar-second">
 <header class="header layout__header">
 <a href="/" title="Home" rel="home" class="header__logo">
@@ -88,7 +89,7 @@
 <nav class="main-menu mx--xs layout__navigation" aria-label="Main menu">
 <ul class="flex-inline mx--0">
 <li><a href="/"><span>Home</span></a></li>
-<li><a href="/documentation/"><span>Documentation</span></a></li>
+<li><a href="/documentation/" aria-current="page"><span>Documentation</span></a></li>
 <li><a href="/books/"><span>Books</span></a></li>
 <li><a href="/contact/"><span>Contact</span></a></li>
 <li><a href="/search/"><span>Search</span></a></li>
@@ -110,7 +111,7 @@
     <nav class="mobile-nav__main-menu" aria-label="Main menu">
     <ul class="mobile-nav__navbar">
     <li><a href="/"><span>Home</span></a></li>
-    <li><a href="/documentation/"><span>Documentation</span></a></li>
+    <li><a href="/documentation/" aria-current="page"><span>Documentation</span></a></li>
     <li><a href="/books/"><span>Books</span></a></li>
     <li><a href="/contact/"><span>Contact</span></a></li>
     <li><a href="/search/"><span>Search</span></a></li>
@@ -120,21 +121,36 @@
   </div>
 </div>
 <main class="main layout__main">
+<article class="single-view single-view--documentation">
 <header>
-<h1 class="title">Tags</h1>
+<h1 class="title mb--xxs">jBPF for RIC with srsRAN</h1>
+<div class="submitted meta">
+<span class="author" itemprop="author">Erich</span> - <time class="created-date" datetime="2025-04-10T00:00:00Z">10 April, 2025</time>
+
+</div>
 </header>
 
+<h1 id="what-is-jbpf">What is jBPF?</h1>
+<p>jBPF stands for Janus BPF, it is eBPF like that part of janus project provided by microsoft. jBPF runs in user space mode unlike eBPF that runs in kernel stack, it is based on userspace BPF (uBPF). just like the developer said:</p>
+<blockquote>
+<p>Userspace eBPF instrumentation and control framework for deploying control and monitoring functions in a secure manner. It is part of Project Janus and provides probes for eBPF-like functionality outside of the Linux kernel.</p>
+</blockquote>
+<p>As Telecom technology require low latency in such manner, eBPF comes for accomplish this requirement. eBPF already implemented in several usecases that require low latency and control something without interupt the process. In this scenario telecom technology also require this manner, and eBPF already proven to resolve this requirements, such as linux scheduler modification without interuptthe process and firewall.</p>
+<p>jBPF that part of janus project provided by microsoft already provide us the way to use eBPF instrumentation for Radio Access Network Monitor and control utilization. The project you can find at here:
+<a href="https://github.com/microsoft/jbpf.git">https://github.com/microsoft/jbpf.git</a></p>
+<p>The jbpf instrumentation and control library provides a flexible and safe user-mode instrumentation framework built on eBPF technology. It splits responsibilities between the core application developers and a potentially broader community of developers who want safe access to instrumentation and control, similar to eBPF in Linux kernel. However, jbpf operates entirely in user mode and makes no calls to Linux kernel.</p>
+<p>The core application developers define common instrumentation points with access to important internal application structures and APIs, but without prescribing how these will be consumed. Other developers can deploy their own code, inlined, at the instrumentation points. It allows them to efficiently process internal application data in an arbitrary way to extract particular information without needing to copy it elsewhere. The instrumentation code is statically verified before executed to enforce safety.</p>
 
 
-
+</article>
 </main>
 
 
 <aside class="sidebar layout__second-sidebar">
 <nav class="menu">
-<p class="title"><strong><a href="/documentation/">Documentation</a></strong></p>
+<p class="title"><strong><a href="/documentation/" aria-current="page">Documentation</a></strong></p>
 <ul>
-<li><a href="/documentation/jbpf-srsran/">jBPF for RIC with srsRAN</a></li>
+<li><a href="/documentation/jbpf-srsran/" aria-current="page">jBPF for RIC with srsRAN</a></li>
 <li><a href="/documentation/ebpf-sctp-tracing/">eBPF Trace SCTP Socket</a></li>
 <li><a href="/documentation/sched-ext/">Sched-Ext a Game Changer for Linux Scheduler</a></li>
 </ul>
@@ -147,7 +163,6 @@
 </nav>
 </aside>
 <footer class="footer layout__footer mt--l">
-<p>Follow tags: <a rel="alternate" type="application/rss&#43;xml" href="http://localhost:8080/tags/index.xml">rss</a></p>
 <p><span>© Erich&#39;s Site</span></p>
 
 

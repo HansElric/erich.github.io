@@ -2,17 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:8080/blog/</loc>
-    <lastmod>2025-04-02T00:00:00+00:00</lastmod>
+    <loc>http://localhost:8080/documentation/</loc>
+    <lastmod>2025-04-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:8080/documentation/jbpf-srsran/</loc>
+    <lastmod>2025-04-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:8080/</loc>
+    <lastmod>2025-04-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:8080/blog/</loc>
     <lastmod>2025-04-02T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:8080/blog/self-employed/</loc>
     <lastmod>2025-04-02T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:8080/documentation/</loc>
-    <lastmod>2024-08-21T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:8080/documentation/ebpf-sctp-tracing/</loc>
     <lastmod>2024-08-21T00:00:00+00:00</lastmod>
