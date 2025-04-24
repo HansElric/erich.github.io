@@ -132,16 +132,275 @@
 </header>
 
 <h1 id="what-is-jbpf">What is jBPF?</h1>
-<p>jBPF stands for Janus BPF, it is eBPF like that part of janus project provided by microsoft. jBPF runs in user space mode unlike eBPF that runs in kernel stack, it is based on userspace BPF (uBPF). just like the developer said:</p>
+<p>jBPF stands for Janus BPF, an eBPF like program as part of janus project provided by microsoft. jBPF runs in user space mode unlike eBPF that runs in kernel stack, it is based on userspace BPF (uBPF). just like the developer said:</p>
 <blockquote>
 <p>Userspace eBPF instrumentation and control framework for deploying control and monitoring functions in a secure manner. It is part of Project Janus and provides probes for eBPF-like functionality outside of the Linux kernel.</p>
 </blockquote>
-<p>As Telecom technology require low latency in such manner, eBPF comes for accomplish this requirement. eBPF already implemented in several usecases that require low latency and control something without interupt the process. In this scenario telecom technology also require this manner, and eBPF already proven to resolve this requirements, such as linux scheduler modification without interuptthe process and firewall.</p>
-<p>jBPF that part of janus project provided by microsoft already provide us the way to use eBPF instrumentation for Radio Access Network Monitor and control utilization. The project you can find at here:
+<p>As Telecom technology require low latency in such manner, eBPF comes for accomplish this requirement. eBPF already implemented in several usecases that require low latency and take control or modify metadata without interupt the process. In this telecom scenario also require this manner, and eBPF already proven to resolve this requirements, such as linux scheduler modification without interupt the entire process or kernel.</p>
+<p>jBPF that part of janus project provided by microsoft already gives us the way to use eBPF instrumentation for Radio Access Network monitor and control utilization. The project you can find at here:
 <a href="https://github.com/microsoft/jbpf.git">https://github.com/microsoft/jbpf.git</a></p>
 <p>The jbpf instrumentation and control library provides a flexible and safe user-mode instrumentation framework built on eBPF technology. It splits responsibilities between the core application developers and a potentially broader community of developers who want safe access to instrumentation and control, similar to eBPF in Linux kernel. However, jbpf operates entirely in user mode and makes no calls to Linux kernel.</p>
 <p>The core application developers define common instrumentation points with access to important internal application structures and APIs, but without prescribing how these will be consumed. Other developers can deploy their own code, inlined, at the instrumentation points. It allows them to efficiently process internal application data in an arbitrary way to extract particular information without needing to copy it elsewhere. The instrumentation code is statically verified before executed to enforce safety.</p>
-
+<h2 id="jbpf-architecture">jBPF Architecture</h2>
+<p>jBPF literaly same with BPF workflow, there are metadatas that we can receive and also can be modify by the bpf prog. If you&rsquo;re familiar with eBPF or uBPF, that eBPF code will be compiled into bpf object file and could be load using bpftool or something else. In jBPF we don&rsquo;t use bppftool to load the program, and the bpf object will called codelet in jBPF.</p>
+<p><img src="post/jbpf_oss_architecture.png" alt="jbpf Architecture"></p>
+<p>These are the basic terms used in the project:</p>
+<ul>
+<li><strong>Hook</strong>: An instrumentation point at which we call user-provided code (see here for more on hooks).</li>
+<li><strong>Codelet</strong>: A piece of user-provided code that gets executed once a hook point is called in the application (see here for mo**re * on codelets).</li>
+<li><strong>Codelet set</strong>: A set of codelets that share maps or other things and have to be deployed together.</li>
+<li><strong>Map</strong>: A shared memory location that is accessible to one or more codelets, typically used to store data between in** vocaions, * share across codelets, or communicate with the rest of the system (see here for more on maps).</li>
+<li><strong>Helper function</strong>: A function implemented by the application and exposed to the codelet, typically used to affect the application behaviour or perform complex operations that are hard to verify (see here for more on helper functions).</li>
+</ul>
+<h2 id="srsran-integration">srsRAN integration</h2>
+<p>There is project for srsran integration with jbpf, you can go to jbpf repository and find the repo at there. Otherwise, I just create my integration by my self with reference by that repo. In my integration, I focuse on retrieve CU_CP telemetry, such as du_index, plmn and ue_index.</p>
+<ol>
+<li>Modify the gnb.cpp</li>
+</ol>
+<p>We need to include jbpf headers file and our custom headers. Also we need to initialize the jbpf process. And the important part is you need to register the jbpf thread to srsran thread process, because jbpf is running inside it&rsquo;s own thread.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>  <span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;srsran/jbpf/inc/jbpf.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;srsran/jbpf/inc/jbpf_hook.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;srsran/jbpf/inc/jbpf_defs.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;srsran/jbpf/jbpf_context.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;srsran/jbpf/common.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;srsran/jbpf/jbpf_srsran_hooks.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;srsran/jbpf/inc/jbpf.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">#define IPC_NAME &#34;example_ipc_app&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">jbpf_io_stream_id_t</span> control_input_stream_id <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>      .id <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>,    <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x11</span>}};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">jbpf_io_stream_id_t</span> output_data_stream_id <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>      .id <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x22</span>, <span style="color:#ae81ff">0x33</span>, <span style="color:#ae81ff">0x44</span>, <span style="color:#ae81ff">0x55</span>, <span style="color:#ae81ff">0x66</span>, <span style="color:#ae81ff">0x77</span>, <span style="color:#ae81ff">0x88</span>, <span style="color:#ae81ff">0x99</span>, <span style="color:#ae81ff">0xAA</span>, <span style="color:#ae81ff">0xBB</span>, <span style="color:#ae81ff">0xCC</span>,    <span style="color:#ae81ff">0xDD</span>, <span style="color:#ae81ff">0xEE</span>, <span style="color:#ae81ff">0xFF</span>}};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// Used to covert data of type Packet to JSON format
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  boost<span style="color:#f92672">::</span>property_tree<span style="color:#f92672">::</span>ptree
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">toPtree</span>(<span style="color:#66d9ef">const</span> jbpf_cucp_uemgr_ctx_info<span style="color:#f92672">&amp;</span> packet)
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>      boost<span style="color:#f92672">::</span>property_tree<span style="color:#f92672">::</span>ptree pt;
+</span></span><span style="display:flex;"><span>      pt.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;ctx_id&#34;</span>, packet.ctx_id);
+</span></span><span style="display:flex;"><span>      pt.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;du_index&#34;</span>, packet.du_index);
+</span></span><span style="display:flex;"><span>      pt.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;plmn&#34;</span>, packet.plmn);
+</span></span><span style="display:flex;"><span>      pt.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;ue_index&#34;</span>, packet.ue_index);
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span> pt;
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  std<span style="color:#f92672">::</span>string
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">toJson</span>(<span style="color:#66d9ef">const</span> boost<span style="color:#f92672">::</span>property_tree<span style="color:#f92672">::</span>ptree<span style="color:#f92672">&amp;</span> pt)
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>      std<span style="color:#f92672">::</span>ostringstream oss;
+</span></span><span style="display:flex;"><span>      boost<span style="color:#f92672">::</span>property_tree<span style="color:#f92672">::</span><span style="color:#a6e22e">write_json</span>(oss, pt);
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span> oss.<span style="color:#a6e22e">str</span>();
+</span></span><span style="display:flex;"><span>  };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">io_channel_print_output</span>(<span style="color:#66d9ef">jbpf_io_stream_id_t</span><span style="color:#f92672">*</span> stream_id, <span style="color:#66d9ef">void</span><span style="color:#f92672">**</span> bufs, <span style="color:#66d9ef">int</span> num_bufs, <span style="color:#66d9ef">void</span><span style="color:#f92672">*</span>    ctx)
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">if</span> (stream_id <span style="color:#f92672">&amp;&amp;</span> num_bufs <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e">// Check that the data corresponds to a known output channel
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">memcmp</span>(<span style="color:#f92672">&amp;</span>output_data_stream_id, stream_id, <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">jbpf_io_stream_id_t</span>)) <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>)    {
+</span></span><span style="display:flex;"><span>              std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;ERROR: Unknown stream_id&#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+</span></span><span style="display:flex;"><span>              <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e">// Fetch the data and print in JSON format
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> num_bufs; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>          jbpf_cucp_uemgr_ctx_info p <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>static_cast<span style="color:#f92672">&lt;</span>jbpf_cucp_uemgr_ctx_info<span style="color:#f92672">*&gt;</span>(bufs[i])   ;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>          boost<span style="color:#f92672">::</span>property_tree<span style="color:#f92672">::</span>ptree pt <span style="color:#f92672">=</span> <span style="color:#a6e22e">toPtree</span>(p);
+</span></span><span style="display:flex;"><span>          std<span style="color:#f92672">::</span>string json <span style="color:#f92672">=</span> <span style="color:#a6e22e">toJson</span>(pt);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>          std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> json <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>          <span style="color:#75715e">// Send an acknowledgement message back to the codelet
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>          PacketResp resp <span style="color:#f92672">=</span> {<span style="color:#ae81ff">1</span>};
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">jbpf_send_input_msg</span>(<span style="color:#f92672">&amp;</span>control_input_stream_id, <span style="color:#f92672">&amp;</span>resp, <span style="color:#66d9ef">sizeof</span>(resp));
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  .
+</span></span><span style="display:flex;"><span>  .
+</span></span><span style="display:flex;"><span>  .
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// ======== START JBPF ========= //
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">struct</span> jbpf_config jbpf_config <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>};
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">jbpf_set_default_config_options</span>(<span style="color:#f92672">&amp;</span>jbpf_config);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Enable LCM IPC interface using UNIX socket at the default socket path (the default is through C API)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    jbpf_config.lcm_ipc_config.has_lcm_ipc_thread <span style="color:#f92672">=</span> true;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">snprintf</span>(
+</span></span><span style="display:flex;"><span>        jbpf_config.lcm_ipc_config.lcm_ipc_name,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">sizeof</span>(jbpf_config.lcm_ipc_config.lcm_ipc_name) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;%s&#34;</span>,
+</span></span><span style="display:flex;"><span>        JBPF_DEFAULT_LCM_SOCKET);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Initialize jbpf
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">jbpf_init</span>(<span style="color:#f92672">&amp;</span>jbpf_config) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">exit</span>(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Any thread that calls a hook must be registered
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">jbpf_register_thread</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">jbpf_register_io_output_cb</span>(io_channel_print_output);
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// ======== END JBPF ========= //
+</span></span></span></code></pre></div><ol start="2">
+<li>Write custom hook macro</li>
+</ol>
+<p>As the documentation guide, to working with jBPF we need hook point. A hook function is a process to tell the codelet which process will be used by the codelet.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>  <span style="color:#75715e">/* CUCP UE Manager */</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">DECLARE_JBPF_HOOK</span>(cucp_uemgr_ue_add,
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">struct</span> jbpf_ran_generic_ctx ctx,
+</span></span><span style="display:flex;"><span>      ctx,
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">HOOK_PROTO</span>(
+</span></span><span style="display:flex;"><span>          jbpf_cucp_uemgr_ctx_info <span style="color:#f92672">*</span>info,
+</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">bool</span> pci_set,
+</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">uint16_t</span> pci,
+</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">bool</span> rnti_set,
+</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">uint16_t</span> rnti),
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">HOOK_ASSIGN</span>(
+</span></span><span style="display:flex;"><span>          ctx.data <span style="color:#f92672">=</span> (<span style="color:#66d9ef">uint64_t</span>)info;
+</span></span><span style="display:flex;"><span>          ctx.data_end <span style="color:#f92672">=</span> (<span style="color:#66d9ef">uint64_t</span>) ((<span style="color:#66d9ef">uint8_t</span><span style="color:#f92672">*</span>)info <span style="color:#f92672">+</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">struct</span>   jbpf_cucp_uemgr_ctx_info));
+</span></span><span style="display:flex;"><span>          ctx.srs_meta_data1 <span style="color:#f92672">=</span> ((<span style="color:#66d9ef">uint64_t</span>)pci_set) <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">16</span> <span style="color:#f92672">|</span> pci;
+</span></span><span style="display:flex;"><span>          ctx.srs_meta_data2 <span style="color:#f92672">=</span> (<span style="color:#66d9ef">uint64_t</span>)rnti_set <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">16</span> <span style="color:#f92672">|</span> rnti;
+</span></span><span style="display:flex;"><span>      )
+</span></span><span style="display:flex;"><span>  )
+</span></span></code></pre></div><ol start="3">
+<li>modify the file</li>
+</ol>
+<p>then because in this docs, I will retrive data from cu_cp, I need to modify ue_manager_impl.cpp. You can modify anywhere, depends on what data we want to retrieve.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>  <span style="color:#a6e22e">DEFINE_JBPF_HOOK</span>(cucp_uemgr_ue_add);
+</span></span><span style="display:flex;"><span>  .
+</span></span><span style="display:flex;"><span>  .
+</span></span><span style="display:flex;"><span>  .
+</span></span><span style="display:flex;"><span>  .
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">struct</span> jbpf_cucp_uemgr_ctx_info ctx_info <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>, (<span style="color:#66d9ef">uint16_t</span>)du_index, plmn.<span style="color:#a6e22e">to_bcd</span>(),   (<span style="color:#66d9ef">uint64_t</span>)new_ue_index};
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">hook_cucp_uemgr_ue_add</span>(<span style="color:#f92672">&amp;</span>ctx_info, pci.<span style="color:#a6e22e">has_value</span>(), pci.<span style="color:#a6e22e">value</span>(), rnti.<span style="color:#a6e22e">has_value</span>(), <span style="color:#a6e22e">to_value</span>(rnti.<span style="color:#a6e22e">value</span>()));
+</span></span></code></pre></div><ol start="4">
+<li>Create Codelet</li>
+</ol>
+<p>As I mentioned before, codelet is bascially eBPF prog.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;jbpf_defs.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;jbpf_helper.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;common.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">jbpf_ringbuf_map</span>(outmap, <span style="color:#66d9ef">struct</span> jbpf_cucp_uemgr_ctx_info, <span style="color:#ae81ff">100</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">jbpf_control_input_map</span>(inmap, <span style="color:#66d9ef">struct</span> PacketResp, <span style="color:#ae81ff">100</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// A map of type JBPF_MAP_TYPE_ARRAY, which is used
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// to store internal codelet state.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">struct</span> jbpf_load_map_def <span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;maps&#34;</span>) counter <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>  .type <span style="color:#f92672">=</span> JBPF_MAP_TYPE_ARRAY,
+</span></span><span style="display:flex;"><span>  .key_size <span style="color:#f92672">=</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">int</span>),
+</span></span><span style="display:flex;"><span>  .value_size <span style="color:#f92672">=</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">int</span>),
+</span></span><span style="display:flex;"><span>  .max_entries <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>,
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;jbpf_generic&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">uint64_t</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">jbpf_main</span>(<span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> state)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">struct</span> jbpf_ran_generic_ctx<span style="color:#f92672">*</span> ctx;
+</span></span><span style="display:flex;"><span>  ctx <span style="color:#f92672">=</span> (<span style="color:#66d9ef">struct</span> jbpf_ran_generic_ctx<span style="color:#f92672">*</span>)state;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">struct</span> jbpf_cucp_uemgr_ctx_info <span style="color:#f92672">*</span>p, <span style="color:#f92672">*</span>p_end;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">struct</span> jbpf_cucp_uemgr_ctx_info echo;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">struct</span> PacketResp resp <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">jbpf_printf_debug</span>(<span style="color:#e6db74">&#34;&gt;&gt;&gt; UE ADD called: ctx_id=%u, d_index=%lu, plmn=%u</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, echo.ctx_id, echo.du_index, echo.plmn);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> c;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">int</span> cnt;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">uint64_t</span> index <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>  c <span style="color:#f92672">=</span> <span style="color:#a6e22e">jbpf_map_lookup_elem</span>(<span style="color:#f92672">&amp;</span>counter, <span style="color:#f92672">&amp;</span>index);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>c)
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  cnt <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">*</span>)c;
+</span></span><span style="display:flex;"><span>  cnt<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">*</span>(<span style="color:#66d9ef">uint32_t</span><span style="color:#f92672">*</span>)c <span style="color:#f92672">=</span> cnt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  p <span style="color:#f92672">=</span> (<span style="color:#66d9ef">void</span><span style="color:#f92672">*</span>)ctx<span style="color:#f92672">-&gt;</span>data;
+</span></span><span style="display:flex;"><span>  p_end <span style="color:#f92672">=</span> (<span style="color:#66d9ef">void</span><span style="color:#f92672">*</span>)ctx<span style="color:#f92672">-&gt;</span>data_end;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (p <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">&gt;</span> p_end)
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  echo <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>p;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">jbpf_ringbuf_output</span>(<span style="color:#f92672">&amp;</span>outmap, <span style="color:#f92672">&amp;</span>echo, <span style="color:#66d9ef">sizeof</span>(echo)) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">while</span>(<span style="color:#a6e22e">jbpf_control_input_receive</span>(<span style="color:#f92672">&amp;</span>inmap, <span style="color:#f92672">&amp;</span>echo, <span style="color:#66d9ef">sizeof</span>(echo)) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>  	echo.du_index <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>  	<span style="color:#a6e22e">jbpf_printf_debug</span>(<span style="color:#e6db74">&#34;Got aggregate value %u</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">h&#34;</span>, echo.du_index);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>a;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="run-the-program">Run the program</h2>
+<p>If the code modification already done, we can compile it and run it. First run the srsRAN gnb, try to load the codelet and finally, try to start UE and see what&rsquo;s happen. If it shows the parameters we set, it indicates we successfully create our first RIC using jBPF.</p>
+<p>the output should be like this.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>  <span style="color:#f92672">====</span> gNB started <span style="color:#f92672">===</span>
+</span></span><span style="display:flex;"><span>  Type &lt;h&gt; to view help
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.825696Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>IO<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Received <span style="color:#ae81ff">79640</span> bytes
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.844989Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Creating codelet   cucp_uemgr_ue_add_codelet
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845051Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_map_lookup
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845057Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_map_lookup_reset
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845060Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_map_update
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845065Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_map_delete
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845069Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_map_clear
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845073Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_map_dump
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845077Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_time_get_ns
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845082Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_get_sys_time
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845086Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_get_sys_time_diff_ns
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845091Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span> jbpf_hash
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845094Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span> jbpf_printf
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845098Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_ringbuf_output
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845102Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_mark_runtime_init
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845107Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_runtime_limit_exceeded
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845110Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span> jbpf_rand
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845113Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_control_input_receive
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845117Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_get_output_buf
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845121Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Registering helper <span style="color:#66d9ef">function</span>  jbpf_send_output
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845746Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Map counter registered successfully <span style="color:#66d9ef">for</span>  codelet cucp_uemgr_ue_add_codelet
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.845765Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>INFO<span style="color:#f92672">]</span>: Registered map counter to codelet   cucp_uemgr_ue_add_codelet
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.847736Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>IO<span style="color:#f92672">][</span>INFO<span style="color:#f92672">]</span>: Creating channel  00112233445566778899aabbccddeeff
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.847781Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>MEM_MGMT<span style="color:#f92672">][</span>INFO<span style="color:#f92672">]</span>: Added <span style="color:#ae81ff">63</span> elements to the ringbuf
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.847786Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>MEM_MGMT<span style="color:#f92672">][</span>INFO<span style="color:#f92672">]</span>: The size of the mempool is <span style="color:#ae81ff">63</span> and   the capacity is <span style="color:#ae81ff">63</span>
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.847795Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Map outmap registered successfully <span style="color:#66d9ef">for</span>   codelet cucp_uemgr_ue_add_codelet
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.847802Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>INFO<span style="color:#f92672">]</span>: Registered map outmap to codelet  cucp_uemgr_ue_add_codelet
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.847808Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>IO<span style="color:#f92672">][</span>INFO<span style="color:#f92672">]</span>: Creating channel  <span style="color:#ae81ff">11111111111111111111111111111111</span>
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.847827Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>MEM_MGMT<span style="color:#f92672">][</span>INFO<span style="color:#f92672">]</span>: Added <span style="color:#ae81ff">63</span> elements to the ringbuf
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.847831Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>MEM_MGMT<span style="color:#f92672">][</span>INFO<span style="color:#f92672">]</span>: The size of the mempool is <span style="color:#ae81ff">63</span> and   the capacity is <span style="color:#ae81ff">63</span>
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.847837Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Map inmap registered successfully <span style="color:#66d9ef">for</span>  codelet cucp_uemgr_ue_add_codelet
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.847840Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>INFO<span style="color:#f92672">]</span>: Registered map inmap to codelet   cucp_uemgr_ue_add_codelet
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.847844Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Map inmap is already registered!
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.848432Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Created codelet  cucp_uemgr_ue_add_codelet
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.848442Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>INFO<span style="color:#f92672">]</span>: Registered codelet  cucp_uemgr_ue_add_codelet to hook cucp_uemgr_ue_add
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.848446Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>INFO<span style="color:#f92672">]</span>: ----------------- cucp_uemgr_ue_add:  cucp_uemgr_ue_add_codelet ----------------------
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.848450Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>INFO<span style="color:#f92672">]</span>: hook_name <span style="color:#f92672">=</span> cucp_uemgr_ue_add, priority   <span style="color:#f92672">=</span> 1, runtime_threshold <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.848454Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>INFO<span style="color:#f92672">]</span>: Codelet created and loaded successfully:  cucp_uemgr_ue_add_codelet
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.848459Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Codeletset is loaded OK <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:21.848470Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>IO<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Sent <span style="color:#ae81ff">516</span> bytes
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:25.520540Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: &gt;&gt;&gt; UE ADD called: ctx_id<span style="color:#f92672">=</span>0, d_index<span style="color:#f92672">=</span>0,  plmn<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;ctx_id&#34;</span>: <span style="color:#e6db74">&#34;0&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;du_index&#34;</span>: <span style="color:#e6db74">&#34;1&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;plmn&#34;</span>: <span style="color:#e6db74">&#34;61712&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;ue_index&#34;</span>: <span style="color:#e6db74">&#34;0&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:25.735163Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: &gt;&gt;&gt; UE ADD called: ctx_id<span style="color:#f92672">=</span>0, d_index<span style="color:#f92672">=</span>0,  plmn<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>
+</span></span><span style="display:flex;"><span>  2025-04-24T06:54:25.735179Z <span style="color:#f92672">[</span>JBPF<span style="color:#f92672">][</span>CORE<span style="color:#f92672">][</span>DEBUG<span style="color:#f92672">]</span>: Got aggregate value <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;ctx_id&#34;</span>: <span style="color:#e6db74">&#34;0&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;du_index&#34;</span>: <span style="color:#e6db74">&#34;1&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;plmn&#34;</span>: <span style="color:#e6db74">&#34;61712&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;ue_index&#34;</span>: <span style="color:#e6db74">&#34;1&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
+</span></span></code></pre></div>
 
 </article>
 </main>

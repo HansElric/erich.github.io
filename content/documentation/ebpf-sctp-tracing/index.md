@@ -7,13 +7,13 @@ draft: false
 
 # eBPF SCTP Trace
 
-![architectured](/content/documentation/ebpf-sctp-tracing/image.png)
+![architectured](post/image.png)
 
 ## Trace the Protocol ID and print it in kernel
 
-![image.png](/content/documentation/ebpf-sctp-tracing/image1.png)
+![image.png](post/image1.png)
 
-![image.png](/content/documentation/ebpf-sctp-tracing/image2.png)
+![image.png](post/image2.png)
 
 Protocol ID for **SCTP is 132** and the program was successfully trace data that contain SCTP packet from CU to AMF.
 
@@ -111,7 +111,7 @@ char _license[] SEC("license") = "GPL";
 
 ```
 
-![image.png](/content/documentation/ebpf-sctp-tracing/image3.png)
+![image.png](post/image3.png)
 
 The data of the output will store in events file, to open the oytput or view the output we need the userspace application to view BPF_MAP_TYPE_PERF_EVENT_ARRAY like perf buffer in linux.
 

@@ -3,6 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=8080&amp;path=livereload" data-no-instant defer></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width">
+<meta name="google-site-verification" content="_l4Y5vkZ_x78kCO8JSIydEcugTa2jLv0r9KpbsdZJgw" />
 <link rel="stylesheet" href="/css/custom.css">
 
 <title>eBPF Trace SCTP Socket – Erich&#39;s Site</title>
@@ -131,10 +132,10 @@
 </header>
 
 <h1 id="ebpf-sctp-trace">eBPF SCTP Trace</h1>
-<p><img src="/content/documentation/ebpf-sctp-tracing/image.png" alt="architectured"></p>
+<p><img src="post/image.png" alt="architectured"></p>
 <h2 id="trace-the-protocol-id-and-print-it-in-kernel">Trace the Protocol ID and print it in kernel</h2>
-<p><img src="/content/documentation/ebpf-sctp-tracing/image1.png" alt="image.png"></p>
-<p><img src="/content/documentation/ebpf-sctp-tracing/image2.png" alt="image.png"></p>
+<p><img src="post/image1.png" alt="image.png"></p>
+<p><img src="post/image2.png" alt="image.png"></p>
 <p>Protocol ID for <strong>SCTP is 132</strong> and the program was successfully trace data that contain SCTP packet from CU to AMF.</p>
 <p>Almost all telco protocols are SCTP based, like NGAP, F1AP, nFAPI, E1AP, E2AP, etc. With this filtering process using eBPF, I argue (hypothetically) that the filtering process is much faster because the process is not involve kernel. With this approach I also argue that this filtering process is useful in telco technology, it can be used for security in RAN, observable the packet to get data for Traffic Control, handover and for RIC use cases.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;vmlinux.h&#34;</span><span style="color:#75715e">
@@ -219,7 +220,7 @@
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> _license[] <span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;license&#34;</span>) <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;GPL&#34;</span>;
-</span></span></code></pre></div><p><img src="/content/documentation/ebpf-sctp-tracing/image3.png" alt="image.png"></p>
+</span></span></code></pre></div><p><img src="post/image3.png" alt="image.png"></p>
 <p>The data of the output will store in events file, to open the oytput or view the output we need the userspace application to view BPF_MAP_TYPE_PERF_EVENT_ARRAY like perf buffer in linux.</p>
 <p>First thing to do before running the userspace program, we need to specify where the events of our bpf maps will store. To do this we need to do some commands like below:</p>
 <p>The error <code>bpf_obj_get: No such file or directory</code> indicates that the BPF map at the specified path (<code>/sys/fs/bpf/events</code>) doesn&rsquo;t exist or wasn&rsquo;t created correctly.</p>
