@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html class="nojs" lang="en-us" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<meta name="google-site-verification" content="_l4Y5vkZ_x78kCO8JSIydEcugTa2jLv0r9KpbsdZJgw" />
+<link rel="stylesheet" href="/css/custom.css">
+
+<title>eBPF GTP Packet Filtering – Erich&#39;s Site</title>
+
+<meta name="created" content="2024-11-21T00:00:00+0000">
+<meta name="modified" content="2024-11-21T00:00:00+0000">
+<meta name="author" content="Erich">
+<meta name="contact" content="johan.ed.saputro@protonmail.com">
+<meta property="og:site_name" content="Erich&#39;s Site">
+<meta property="og:title" content="eBPF GTP Packet Filtering">
+<meta property="og:url" content="http://localhost:1313/documentation/ebpf-gtp-packet-filtering/">
+<meta property="og:type" content="article">
+<meta property="og:image" content="http://localhost:1313/images/logo.png">
+<meta name="generator" content="Hugo 0.123.7">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="theme-color" content="#ffffff">
+
+
+<link rel="canonical" href="http://localhost:1313/documentation/ebpf-gtp-packet-filtering/">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+
+<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/css/mobilemenu.css" media="screen">
+<link rel="stylesheet" href="/css/print.css" media="print">
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "headline": "eBPF GTP Packet Filtering",
+    "datePublished": "2024-11-21T00:00:00Z",
+    "dateModified": "2024-11-21T00:00:00Z",
+    "url" : "http://localhost:1313/documentation/ebpf-gtp-packet-filtering/",
+    
+    "image" : "http://localhost:1313/images/logo.png",
+    "author": {
+      "@type": "Person",
+      "name": "Erich"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http://localhost:1313/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Erich's Site",
+      "logo" : {
+        "@type": "ImageObject",
+        "url": "http://localhost:1313/images/logo.png"
+      },
+      "url": "http://localhost:1313/"
+    }
+  }
+</script>
+
+<script src="/js/script-early.13eca1c44b48885517a4dc79e153a2da63e3825a7a37c271c88558877cb570b5.js"></script>
+
+<script defer src="/js/mobilemenu.91539dcbc30264a42d652fdd6446fb725e2e13cecc3644eab74db3aad1b1d9d2.js"></script>
+<script defer src="/js/script.5ed52cdd956021fd7194109b25dbc5cbe93a1085461b9f29b1284df94c19481c.js"></script>
+
+
+
+
+</head>
+
+<body class="single-page">
+<div class="page layout__page layout__sidebar-second">
+<header class="header layout__header">
+<a href="/" title="Home" rel="home" class="header__logo">
+<img src="/images/logo.png" width="128" alt="Home" class="header__logo-image">
+</a>
+<h1 class="header__site-name">
+<a href="/" title="Home" class="header__site-link" rel="home"><span>Erich&#39;s Site</span></a>
+</h1>
+<div class="region header__region">
+
+</div>
+</header>
+
+<nav class="main-menu mx--xs layout__navigation" aria-label="Main menu">
+<ul class="flex-inline mx--0">
+<li><a href="/"><span>Home</span></a></li>
+<li><a href="/documentation/" aria-current="page"><span>Documentation</span></a></li>
+<li><a href="/books/"><span>Books</span></a></li>
+<li><a href="/contact/"><span>Contact</span></a></li>
+<li><a href="/search/"><span>Search</span></a></li>
+<li><a href="/blog/"><span>Blog Posts</span></a></li>
+</ul>
+</nav>
+<div class="mobile-nav" dir="ltr" hidden>
+  <div class="mobile-nav__cover"></div>
+  <button class="mobile-nav__toggle" aria-expanded="false" aria-controls="sheet">
+    Menu
+    <svg class="mobile-nav__hamburger" viewBox="0 0 100 100" focusable="false" aria-hidden="true">
+      <rect width="80" height="12" x="10" y="20" rx="5"></rect>
+      <rect width="80" height="12" x="10" y="45" rx="5"></rect>
+      <rect width="80" height="12" x="10" y="70" rx="5"></rect>
+    </svg>
+  </button>
+  <div class="mobile-nav__sheet link-inverted link-nav" id="sheet" aria-hidden="true">
+    <div class="mobile-nav__region"></div>
+    <nav class="mobile-nav__main-menu" aria-label="Main menu">
+    <ul class="mobile-nav__navbar">
+    <li><a href="/"><span>Home</span></a></li>
+    <li><a href="/documentation/" aria-current="page"><span>Documentation</span></a></li>
+    <li><a href="/books/"><span>Books</span></a></li>
+    <li><a href="/contact/"><span>Contact</span></a></li>
+    <li><a href="/search/"><span>Search</span></a></li>
+    <li><a href="/blog/"><span>Blog Posts</span></a></li>
+    </ul>
+    </nav>
+  </div>
+</div>
+<main class="main layout__main">
+<article class="single-view single-view--documentation">
+<header>
+<h1 class="title mb--xxs">eBPF GTP Packet Filtering</h1>
+<div class="submitted meta">
+<span class="author" itemprop="author">Erich</span> - <time class="created-date" datetime="2024-11-21T00:00:00Z">21 November, 2024</time>
+
+</div>
+</header>
+
+<h2 id="what-is-gtp">What is GTP?</h2>
+<p>As wikipedia explanation, GPRS Tunnelling Protocol (GTP) is a group of IP-based communications protocols used to carry general packet radio service (GPRS) within GSM, UMTS, LTE and 5G NR radio networks. In 3GPP architectures, GTP and Proxy Mobile IPv6 based interfaces are specified on various interface points. GTP is a tunneling protocol is used for telecom technology for user plane, it means the users will access the Data Network (DN) using GTP Tunnel. This protocol similiar to VPN that create tunnel for each users, same with GTP, each user that already pass the registration by control plane will have user plane that allocate tunnel using GTP protocol.</p>
+<h2 id="gtp-packet-filtering-with-ebpf">GTP Packet Filtering with eBPF</h2>
+<p>We will continue the progress from previous documentation of eBPF Trace SCTP Socket. We will continue to filter the GTP Protocol. Here is the architecture I used to setup the development and testing.</p>
+<p><img src="post/arch.png" alt="image.png"></p>
+<h2 id="sniff-gtp-packet">Sniff GTP Packet</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/bpf.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/if_ether.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/ip.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/udp.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/gtp.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/in.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;bpf/bpf_helpers.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define GTP_PORT 2152
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;xdp_gtp_sniff&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">xdp_gtp_sniff</span>(<span style="color:#66d9ef">struct</span> xdp_md <span style="color:#f92672">*</span>ctx) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Pointers for accessing packet data
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>data <span style="color:#f92672">=</span> (<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(<span style="color:#66d9ef">long</span>)ctx<span style="color:#f92672">-&gt;</span>data;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>data_end <span style="color:#f92672">=</span> (<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(<span style="color:#66d9ef">long</span>)ctx<span style="color:#f92672">-&gt;</span>data_end;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Ethernet header
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">struct</span> ethhdr <span style="color:#f92672">*</span>eth <span style="color:#f92672">=</span> data;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(eth <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">&gt;</span> data_end) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Check if the packet is an IPv4 packet
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (eth<span style="color:#f92672">-&gt;</span>h_proto <span style="color:#f92672">!=</span> <span style="color:#a6e22e">__constant_htons</span>(ETH_P_IP)) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// IP header
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">struct</span> iphdr <span style="color:#f92672">*</span>ip <span style="color:#f92672">=</span> (<span style="color:#66d9ef">struct</span> iphdr <span style="color:#f92672">*</span>)(eth <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(ip <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">&gt;</span> data_end) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Check if it&#39;s a UDP packet
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (ip<span style="color:#f92672">-&gt;</span>protocol <span style="color:#f92672">!=</span> IPPROTO_UDP) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// UDP header
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">struct</span> udphdr <span style="color:#f92672">*</span>udp <span style="color:#f92672">=</span> (<span style="color:#66d9ef">struct</span> udphdr <span style="color:#f92672">*</span>)((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)ip <span style="color:#f92672">+</span> ip<span style="color:#f92672">-&gt;</span>ihl <span style="color:#f92672">*</span> <span style="color:#ae81ff">4</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(udp <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">&gt;</span> data_end) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Check if the destination port is GTP-U (2152)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (udp<span style="color:#f92672">-&gt;</span>dest <span style="color:#f92672">!=</span> <span style="color:#a6e22e">__constant_htons</span>(GTP_PORT)) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// GTP header
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">struct</span> gtpuhdr <span style="color:#f92672">*</span>gtp <span style="color:#f92672">=</span> (<span style="color:#66d9ef">struct</span> gtpuhdr <span style="color:#f92672">*</span>)(udp <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(gtp <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">&gt;</span> data_end) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Verify that this is a valid GTP-U packet
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (gtp<span style="color:#f92672">-&gt;</span>flags <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0x30</span> <span style="color:#f92672">||</span> gtp<span style="color:#f92672">-&gt;</span>message_type <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0xff</span>) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Here you can add logic to process the GTP packet
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Example: Dropping the packet
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> XDP_DROP; <span style="color:#75715e">// Drop the packet after sniffing
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Otherwise, allow the packet to pass through
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> _license[] <span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;license&#34;</span>) <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;GPL&#34;</span>;
+</span></span></code></pre></div><h2 id="udp-trace-from-gtp">UDP Trace from GTP</h2>
+<p>GTP-U is basically based on UDP packet. So to sniff packet of GTP, first and the foremost we need to parse UDP packet and decapsulate the GTP header to process the packet.</p>
+<p><img src="post/gtp_stack.png" alt="image.png"></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/bpf.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/if_ether.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/ip.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/udp.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/gtp.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/in.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stddef.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/tcp.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;bpf/bpf_endian.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;bpf/bpf_helpers.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define GTP_PORT 2152
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// GTP-U header definition (simplified)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">struct</span> gtpuhdr {
+</span></span><span style="display:flex;"><span>    __u8 flags;
+</span></span><span style="display:flex;"><span>    __u8 message_type;
+</span></span><span style="display:flex;"><span>    __u16 length;
+</span></span><span style="display:flex;"><span>    __u32 tid;  <span style="color:#75715e">// Tunnel Endpoint Identifier (TEID)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;xdp_gtp&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">xdp_gtp_sniff</span>(<span style="color:#66d9ef">struct</span> xdp_md <span style="color:#f92672">*</span>ctx) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Pointers for accessing packet data
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>data <span style="color:#f92672">=</span> (<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(<span style="color:#66d9ef">long</span>)ctx<span style="color:#f92672">-&gt;</span>data;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>data_end <span style="color:#f92672">=</span> (<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(<span style="color:#66d9ef">long</span>)ctx<span style="color:#f92672">-&gt;</span>data_end;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Ethernet header
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">struct</span> ethhdr <span style="color:#f92672">*</span>eth <span style="color:#f92672">=</span> data;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(eth <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">&gt;</span> data_end) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Check if the packet is an IPv4 packet
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (eth<span style="color:#f92672">-&gt;</span>h_proto <span style="color:#f92672">!=</span> <span style="color:#a6e22e">__constant_htons</span>(ETH_P_IP)) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// IP header
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">struct</span> iphdr <span style="color:#f92672">*</span>ip <span style="color:#f92672">=</span> (<span style="color:#66d9ef">struct</span> iphdr <span style="color:#f92672">*</span>)(eth <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(ip <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">&gt;</span> data_end) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Check if it&#39;s a UDP packet
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (ip<span style="color:#f92672">-&gt;</span>protocol <span style="color:#f92672">!=</span> IPPROTO_UDP) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> udphdr <span style="color:#f92672">*</span>udpdata <span style="color:#f92672">=</span> (<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)ip <span style="color:#f92672">+</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#f92672">*</span>ip);
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> ((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)udpdata <span style="color:#f92672">+</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#f92672">*</span>udpdata) <span style="color:#f92672">&gt;</span> data_end) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (udpdata<span style="color:#f92672">-&gt;</span>dest <span style="color:#f92672">!=</span> <span style="color:#a6e22e">__constant_htons</span>(GTP_PORT)) <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    __be32 dst_ip <span style="color:#f92672">=</span> udpdata<span style="color:#f92672">-&gt;</span>dest;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>dst <span style="color:#f92672">=</span> (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>dst_ip;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> fmt[] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;DST: %lld . &#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">sizeof</span>(dst) <span style="color:#f92672">/</span> <span style="color:#66d9ef">sizeof</span>(dst[<span style="color:#ae81ff">0</span>]); i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">bpf_trace_printk</span>(fmt, <span style="color:#66d9ef">sizeof</span>(fmt), dst[i]);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> XDP_PASS;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> _license[] <span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;license&#34;</span>) <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;GPL&#34;</span>;
+</span></span></code></pre></div><p><img src="post/test.png" alt="image.png"></p>
+<h2 id="gtp-u-ip-ue-and-ip-destination">GTP-U [IP UE and IP Destination]</h2>
+<p>In this scenario I have successfully sniff GTP-U packet from CU. As we can see as below, that eBPF already sniff UE IP and Destination IP, in example UE want to send ICMP packet(ping) to 8.8.8.8 IP.</p>
+<p><img src="post/result.png" alt="image.png"></p>
+
+
+</article>
+</main>
+
+
+<aside class="sidebar layout__second-sidebar">
+<nav class="menu">
+<p class="title"><strong><a href="/blog/">Blog</a></strong></p>
+<ul>
+<li><a href="/blog/ebpf_xdp_and_kernel_bypass/">eBPF, XDP and Kernel Bypass</a></li>
+<li><a href="/blog/oss_as_an_ideology/">Open Source as an Ideology</a></li>
+<li><a href="/blog/self-employed/">Self Employed</a></li>
+</ul>
+</nav>
+<nav class="menu">
+<p class="title"><strong><a href="/documentation/" aria-current="page">Documentation</a></strong></p>
+<ul>
+<li><a href="/documentation/jbpf-srsran/">jBPF for RIC with srsRAN</a></li>
+<li><a href="/documentation/ebpf-gtp-packet-filtering/" aria-current="page">eBPF GTP Packet Filtering</a></li>
+<li><a href="/documentation/ebpf-sctp-tracing/">eBPF Trace SCTP Socket</a></li>
+<li><a href="/documentation/sched-ext/">Sched-Ext a Game Changer for Linux Scheduler</a></li>
+</ul>
+</nav>
+</aside>
+<footer class="footer layout__footer mt--l">
+<p><span>© Erich&#39;s Site</span></p>
+
+
+</footer>
+
+</div>
+</body>
+</html>

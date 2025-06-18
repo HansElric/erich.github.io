@@ -6,15 +6,15 @@
 <meta name="google-site-verification" content="_l4Y5vkZ_x78kCO8JSIydEcugTa2jLv0r9KpbsdZJgw" />
 <link rel="stylesheet" href="/css/custom.css">
 
-<title>Self Employed – Erich&#39;s Site</title>
+<title>eBPF, XDP and Kernel Bypass – Erich&#39;s Site</title>
 
-<meta name="created" content="2025-04-02T00:00:00+0000">
-<meta name="modified" content="2025-04-02T00:00:00+0000">
+<meta name="created" content="2025-06-14T00:00:00+0000">
+<meta name="modified" content="2025-06-14T00:00:00+0000">
 <meta name="author" content="Erich">
 <meta name="contact" content="johan.ed.saputro@protonmail.com">
 <meta property="og:site_name" content="Erich&#39;s Site">
-<meta property="og:title" content="Self Employed">
-<meta property="og:url" content="http://localhost:1313/blog/self-employed/">
+<meta property="og:title" content="eBPF, XDP and Kernel Bypass">
+<meta property="og:url" content="http://localhost:1313/blog/ebpf_xdp_and_kernel_bypass/">
 <meta property="og:type" content="article">
 <meta property="og:image" content="http://localhost:1313/images/logo.png">
 <meta name="generator" content="Hugo 0.123.7">
@@ -22,7 +22,7 @@
 <meta name="theme-color" content="#ffffff">
 
 
-<link rel="canonical" href="http://localhost:1313/blog/self-employed/">
+<link rel="canonical" href="http://localhost:1313/blog/ebpf_xdp_and_kernel_bypass/">
 
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -36,10 +36,10 @@
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
-    "@type": "BlogPosting","headline": "Self Employed",
-    "datePublished": "2025-04-02T00:00:00Z",
-    "dateModified": "2025-04-02T00:00:00Z",
-    "url" : "http://localhost:1313/blog/self-employed/",
+    "@type": "BlogPosting","headline": "eBPF, XDP and Kernel Bypass",
+    "datePublished": "2025-06-14T00:00:00Z",
+    "dateModified": "2025-06-14T00:00:00Z",
+    "url" : "http://localhost:1313/blog/ebpf_xdp_and_kernel_bypass/",
     
     "image" : "http://localhost:1313/images/logo.png",
     "author": {
@@ -123,16 +123,74 @@
 <main class="main layout__main">
 <article class="single-view single-view--blog">
 <header>
-<h1 class="title mb--xxs">Self Employed</h1>
+<h1 class="title mb--xxs">eBPF, XDP and Kernel Bypass</h1>
 <div class="submitted meta">
-<span class="author" itemprop="author">Erich</span> - <time class="created-date" datetime="2025-04-02T00:00:00Z">2 April, 2025</time>
+<span class="author" itemprop="author">Erich</span> - <time class="created-date" datetime="2025-06-14T00:00:00Z">14 June, 2025</time>
 
 </div>
 </header>
 
-<p>Maybe some of you have same issue like me, have a job but also have side project for fun. If you are like me, it means we are not alone. There are several people who like us, don&rsquo;t worry :) &ldquo;at first I thought I was alone LOL&rdquo;. It is normal for a person who are incapable to do &ldquo;a doing nothing&rdquo; work. In this page, I would like to sharing my &ldquo;Self Employed&rdquo; work with you.</p>
-<p>It&rsquo;s began while I was studying my Diploma degree, or maybe when I was highschool student. I was a person that loves learning a new thing, especially strategy game. So despite I was going to school for study, sometimes I just go to school&rsquo;s hall to play board game or became football tactic maker. And then this behavior continued until college. I&rsquo;m very passionate in learning new thing and finally start my first self project, that I called &ldquo;A Computer that can See&rdquo;. It is basically just a computer vision.</p>
-<p>For honest doing programming or computer science is just a hobby, actually my passion lay on pure science. But the universe guide me to join telecommunication engineering, and I decided to focused on computer science as the project reference. For me, it is fun to worked in this field and I became passionate with this field. Until I got my first job in Telecom industry, I still working on my project for pure science and computer science. Fortunately, those fields are related each other so I can work on those project together. Yeas every knowledge must be related each other in some ways.</p>
+<p>🧠 Is eBPF a Kernel Bypass? Clearing the Confusion</p>
+<p>eBPF (extended Berkeley Packet Filter) has exploded in popularity for observability, security, and networking on Linux. But if you’ve browsed Reddit or Hacker News, you’ve probably seen people claim:</p>
+<pre><code>“eBPF runs in userspace.”
+“eBPF is a kernel bypass.”
+“eBPF replaces DPDK!”
+</code></pre>
+<p>Let’s clear the fog. In this post, we’ll walk through what eBPF really is, where it runs, and whether it qualifies as a “kernel bypass.”
+🔍 What Is eBPF?</p>
+<p>At its core, eBPF is a virtual machine inside the Linux kernel that allows you to attach tiny programs to key parts of the system — like syscalls, network packet processing, or tracing events.</p>
+<p>You write these eBPF programs in userspace, typically in C, and then load them into the kernel via a syscall (bpf()), where they are verified and JIT-compiled to native code.</p>
+<p>So:</p>
+<pre><code>📦 Written in userspace
+
+🚀 Executed in kernel space
+</code></pre>
+<p>🤔 So… Is eBPF a Kernel Bypass?</p>
+<p>No. eBPF is not a kernel bypass. In fact, it’s the opposite.</p>
+<pre><code>eBPF runs inside the kernel and operates with kernel cooperation.
+
+It extends the kernel's capabilities safely and dynamically.
+
+It is sandboxed, verified, and runs in specific hook points (e.g., network ingress, syscall entry, kprobes, tracepoints, etc.).
+</code></pre>
+<p>✅ eBPF Enhances Kernel Behavior
+❌ eBPF Does Not Bypass the Kernel
+🧵 Why Do People Say eBPF “Runs in Userspace”?</p>
+<p>There’s a grain of truth, but it’s misleading.</p>
+<pre><code>eBPF code is developed and compiled in userspace.
+
+You use userspace tools like clang, bpftool, bcc, libbpf, or bpftool prog load to load programs into the kernel.
+
+But once loaded, eBPF programs run in kernel context, not in userspace.
+</code></pre>
+<p>Saying “eBPF runs in userspace” is like saying &ldquo;drivers run in Notepad because you wrote them there.&rdquo; It’s true that you write them in userspace, but they run in kernelspace.
+⚡ But What About XDP or AF_XDP?</p>
+<p>Good question!</p>
+<p>These are part of the eBPF ecosystem, especially in networking.
+Technology	Runs In	Description
+XDP	Kernel (very early)	Processes packets in the driver before the kernel stack. Used for fast packet filtering and redirection.
+AF_XDP	Userspace	A socket type that allows zero-copy packet I/O between NIC and userspace. Can act as a true kernel bypass.
+DPDK	Userspace	Full kernel bypass. Userland packet processing with direct NIC access via UIO or VFIO.</p>
+<p>So if you want true kernel bypass, you’ll use DPDK or AF_XDP in zero-copy mode. eBPF + XDP can drop or redirect packets before they hit the TCP/IP stack, but it’s still happening inside the kernel.
+🧠 Summary
+Statement	✅ / ❌	Clarification
+eBPF runs in kernel space	✅	After loading, eBPF executes in the kernel
+eBPF is a kernel bypass	❌	It extends the kernel, not bypasses it
+You write eBPF in userspace	✅	Then it’s loaded into kernel
+XDP can avoid the kernel network stack	⚠️	Partially true — it avoids the full stack but is still in kernel
+AF_XDP and DPDK bypass the kernel	✅	These give userland access to NICs
+🛠️ Want to Go Deeper?</p>
+<pre><code>Build an XDP program to drop or redirect packets
+
+Compare DPDK vs AF_XDP vs XDP in real benchmarks
+
+Trace syscalls with eBPF using tools like bcc or bpftrace
+</code></pre>
+<p>🔚 Conclusion</p>
+<p>eBPF is a powerful in-kernel extension mechanism, not a bypass. If you&rsquo;re aiming for extreme packet throughput or latency reduction in userland, consider AF_XDP or DPDK. But for safety, flexibility, and observability — eBPF is unmatched.</p>
+<p>If you&rsquo;re confused by what runs where, just remember:</p>
+<pre><code>You write in userspace, but eBPF thinks in kernelspace.
+</code></pre>
 
 
 </article>
@@ -143,9 +201,9 @@
 <nav class="menu">
 <p class="title"><strong><a href="/blog/" aria-current="page">Blog</a></strong></p>
 <ul>
-<li><a href="/blog/ebpf_xdp_and_kernel_bypass/">eBPF, XDP and Kernel Bypass</a></li>
+<li><a href="/blog/ebpf_xdp_and_kernel_bypass/" aria-current="page">eBPF, XDP and Kernel Bypass</a></li>
 <li><a href="/blog/oss_as_an_ideology/">Open Source as an Ideology</a></li>
-<li><a href="/blog/self-employed/" aria-current="page">Self Employed</a></li>
+<li><a href="/blog/self-employed/">Self Employed</a></li>
 </ul>
 </nav>
 <nav class="menu">

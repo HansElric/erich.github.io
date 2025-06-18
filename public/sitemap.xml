@@ -2,37 +2,43 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:8080/blog/</loc>
+    <loc>http://localhost:1313/blog/</loc>
+    <lastmod>2025-06-14T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/blog/ebpf_xdp_and_kernel_bypass/</loc>
+    <lastmod>2025-06-14T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/</loc>
+    <lastmod>2025-06-14T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/blog/oss_as_an_ideology/</loc>
     <lastmod>2025-04-24T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:8080/</loc>
-    <lastmod>2025-04-24T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:8080/blog/oss_as_an_ideology/</loc>
-    <lastmod>2025-04-24T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:8080/documentation/</loc>
+    <loc>http://localhost:1313/documentation/</loc>
     <lastmod>2025-04-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:8080/documentation/jbpf-srsran/</loc>
+    <loc>http://localhost:1313/documentation/jbpf-srsran/</loc>
     <lastmod>2025-04-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:8080/blog/self-employed/</loc>
+    <loc>http://localhost:1313/blog/self-employed/</loc>
     <lastmod>2025-04-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:8080/documentation/ebpf-sctp-tracing/</loc>
+    <loc>http://localhost:1313/documentation/ebpf-gtp-packet-filtering/</loc>
+    <lastmod>2024-11-21T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/documentation/ebpf-sctp-tracing/</loc>
     <lastmod>2024-08-21T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:8080/books/</loc>
+    <loc>http://localhost:1313/books/</loc>
   </url><url>
-    <loc>http://localhost:8080/categories/</loc>
+    <loc>http://localhost:1313/categories/</loc>
   </url><url>
-    <loc>http://localhost:8080/contact/</loc>
+    <loc>http://localhost:1313/contact/</loc>
   </url><url>
-    <loc>http://localhost:8080/documentation/sched-ext/</loc>
+    <loc>http://localhost:1313/documentation/sched-ext/</loc>
   </url><url>
-    <loc>http://localhost:8080/search/</loc>
+    <loc>http://localhost:1313/search/</loc>
   </url><url>
-    <loc>http://localhost:8080/tags/</loc>
+    <loc>http://localhost:1313/tags/</loc>
   </url>
 </urlset>
